@@ -1,3 +1,4 @@
+import { useSWEffect } from "@remix-pwa/sw";
 import type { LinksFunction } from "@remix-run/cloudflare";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import {
@@ -10,10 +11,13 @@ import {
 } from "@remix-run/react";
 
 export const links: LinksFunction = () => [
+  { rel: "manifest", href: "/resources/manifest.webmanifest" },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
 export default function App() {
+  useSWEffect();
+
   return (
     <html lang="en">
       <head>
