@@ -1,3 +1,11 @@
+kv_namespaces = [
+  {
+    binding = "SESSIONS",
+    id = "e8fdfb35962542efa34795d6371be808",
+    preview = "75c11e239fb746dda5a988d1a36d73f9"
+  }
+]
+
 [[d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
 database_name = "articles-logger-db"

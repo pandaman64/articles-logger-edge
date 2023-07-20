@@ -6,6 +6,7 @@ export type Env = {
   GOOGLE_CALLBACK_URL: string;
   SESSION_COOKIE_SECRET: string;
   DB: D1Database;
+  SESSIONS: KVNamespace;
 };
 
 export function getEnv(context: AppLoadContext): Env {

@@ -1,19 +1,21 @@
 import {
   type AppLoadContext,
-  createCookieSessionStorage,
+  createWorkersKVSessionStorage,
 } from "@remix-run/cloudflare";
 import { getEnv } from "./env.server";
 
 export function createSessionStorage(context: AppLoadContext) {
-  return createCookieSessionStorage({
+  const env = getEnv(context);
+  return createWorkersKVSessionStorage({
     cookie: {
       name: "__session",
       sameSite: "lax",
       path: "/",
       httpOnly: true,
-      secrets: [getEnv(context).SESSION_COOKIE_SECRET],
+      secrets: [env.SESSION_COOKIE_SECRET],
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     },
+    kv: env.SESSIONS,
   });
 }
