@@ -1,8 +1,13 @@
-import type { V2_MetaFunction } from "@remix-run/cloudflare";
+import {
+  json,
+  type LoaderArgs,
+  type V2_MetaFunction,
+} from "@remix-run/cloudflare";
+import { Form, useLoaderData } from "@remix-run/react";
+import { getAuthenticator } from "~/auth.server";
 import { Button } from "~/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -11,18 +16,44 @@ import { Separator } from "~/components/ui/separator";
 
 export const meta: V2_MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "読んだページ記録くん Edge" },
+    { name: "description", content: "読んだページ記録くんを記録してくれるよ" },
   ];
 };
 
+export async function loader({ request, context }: LoaderArgs) {
+  const authenticator = getAuthenticator(context);
+  const user = await authenticator.isAuthenticated(request);
+
+  return json({ user });
+}
+
+function LoginForm() {
+  return (
+    <Form action="/auth/google" method="post">
+      <Button className="text-md font-bold" size="lg">
+        ログイン
+      </Button>
+    </Form>
+  );
+}
+
+function LogoutForm() {
+  return (
+    <Form action="/auth/logout" method="post">
+      <Button className="text-md font-bold" size="lg">
+        ログアウト
+      </Button>
+    </Form>
+  );
+}
+
 export default function Index() {
+  const { user } = useLoaderData<typeof loader>();
   return (
     <div className="mx-auto flex min-h-full max-w-lg flex-col">
       <header className="flex flex-row p-2">
-        <Button className="text-md ml-auto font-bold" size="lg">
-          ログイン
-        </Button>
+        <div className="ml-auto">{user ? <LogoutForm /> : <LoginForm />}</div>
       </header>
       <Separator />
       <main className="p-2">
