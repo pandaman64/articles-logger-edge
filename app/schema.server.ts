@@ -1,3 +1,4 @@
+import type { InferModel } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import {
   sqliteTable,
@@ -54,3 +55,5 @@ export const articles = sqliteTable(
     ),
   })
 );
+
+export type Article = InferModel<typeof articles>;
