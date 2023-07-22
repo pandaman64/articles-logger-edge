@@ -62,6 +62,17 @@ export let loader: LoaderFunction = async () => {
           density: "4.0",
         },
       ],
+
+      share_target: {
+        action: "/articles/new",
+        method: "POST",
+        enctype: "application/x-www-form-urlencoded",
+        params: {
+          title: "title",
+          text: "text",
+          url: "url",
+        },
+      },
     },
     {
       headers: {
