@@ -1,7 +1,7 @@
 import type { ActionArgs } from "@remix-run/cloudflare";
 import { redirect } from "@remix-run/cloudflare";
 import { getAuthenticator } from "~/auth.server";
-import { $object, $string } from "lizod";
+import { $object, $string, $undefined, $union } from "lizod";
 import { getDb } from "~/db.server";
 import { articles } from "~/schema.server";
 
@@ -11,9 +11,9 @@ export async function action({ request, context }: ActionArgs) {
 
   if (user) {
     const validate = $object({
-      title: $string,
-      text: $string,
-      url: $string,
+      title: $union([$string, $undefined]),
+      text: $union([$string, $undefined]),
+      url: $union([$string, $undefined]),
     });
     const body = Object.fromEntries(await request.formData());
     console.log("received body", body);
@@ -23,10 +23,10 @@ export async function action({ request, context }: ActionArgs) {
       const { id } = await drizzle
         .insert(articles)
         .values({
-          title,
-          content: text,
-          url,
           userId: user.id,
+          title: title ?? "",
+          content: text ?? "",
+          url: url ?? "",
         })
         .returning({ id: articles.id })
         .get();
