@@ -1,7 +1,8 @@
-import type { LoaderArgs } from "@remix-run/cloudflare";
+import type { ActionArgs, LoaderArgs } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { and, eq } from "drizzle-orm";
+import { $object, $union, $numberString, type Validator } from "lizod";
 import { getAuthenticator } from "~/auth.server";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
@@ -37,11 +38,46 @@ export async function loader({ request, context, params }: LoaderArgs) {
   throw new Response(null, { status: 404 });
 }
 
+export async function action({ request, context, params }: ActionArgs) {
+  const authenticator = getAuthenticator(context);
+  const user = await authenticator.isAuthenticated(request);
+
+  if (user) {
+    const $empty: Validator<""> = (input: any): input is "" => input === "";
+    const validate = $object({
+      already_read: $union([$numberString, $empty]),
+      rating: $union([$numberString, $empty]),
+    });
+    const body = Object.fromEntries(await request.formData());
+    if (validate(body)) {
+      const id = Number(params["id"]);
+      const { already_read, rating } = body;
+      const drizzle = getDb(context);
+      await drizzle
+        .update(articles)
+        .set({
+          already_read: already_read === "" ? null : Number(body.already_read),
+          rating: rating === "" ? null : Number(body.rating),
+        })
+        .where(eq(articles.id, id))
+        .run();
+      return null;
+    } else {
+      throw new Response(null, { status: 400 });
+    }
+  }
+
+  throw new Response(null, { status: 403 });
+}
+
 export default function Article() {
   const { article } = useLoaderData<typeof loader>();
   const title = article.title.length > 0 ? article.title : article.content;
   return (
-    <Form className="mx-auto flex min-h-screen max-w-lg flex-col gap-4 p-2 leading-none">
+    <Form
+      method="post"
+      className="mx-auto flex min-h-screen max-w-lg flex-col gap-4 p-2 leading-none"
+    >
       <div className="h-12"></div>
       <header>
         <h1 className="text-xl font-semibold">{title}</h1>
@@ -50,6 +86,7 @@ export default function Article() {
       <RadioGroup
         className="grid-cols-2"
         orientation="horizontal"
+        name="already_read"
         defaultValue={article.already_read?.toString() ?? ""}
       >
         <div className="flex flex-row items-center space-x-2">
@@ -65,7 +102,7 @@ export default function Article() {
           </Label>
         </div>
       </RadioGroup>
-      <Select defaultValue={article.rating?.toString() ?? ""}>
+      <Select name="rating" defaultValue={article.rating?.toString() ?? ""}>
         <SelectTrigger className="text-md">
           <SelectValue placeholder="評価する" className="text-md" />
         </SelectTrigger>
