@@ -12,18 +12,18 @@ export async function action({ request, context }: ActionArgs) {
   if (user) {
     const validate = $object({
       title: $string,
-      content: $string,
+      text: $string,
       url: $string,
     });
     const body = Object.fromEntries(await request.formData());
     if (validate(body)) {
-      const { title, content, url } = body;
+      const { title, text, url } = body;
       const drizzle = getDb(context);
       const { id } = await drizzle
         .insert(articles)
         .values({
           title,
-          content,
+          content: text,
           url,
           userId: user.id,
         })
