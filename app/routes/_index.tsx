@@ -4,7 +4,7 @@ import {
   type V2_MetaFunction,
 } from "@remix-run/cloudflare";
 import { Form, Link, useLoaderData } from "@remix-run/react";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getAuthenticator } from "~/auth.server";
 import { Button } from "~/components/ui/button";
 import {
@@ -35,6 +35,7 @@ export async function loader({ request, context }: LoaderArgs) {
       .select()
       .from(articles)
       .where(eq(articles.userId, user.id))
+      .orderBy(desc(articles.id))
       .all();
     return json({ user, userArticles });
   }
