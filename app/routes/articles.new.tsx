@@ -1,8 +1,9 @@
-import { ActionArgs, redirect } from "@remix-run/cloudflare";
+import type { ActionArgs } from "@remix-run/cloudflare";
+import { redirect } from "@remix-run/cloudflare";
 import { getAuthenticator } from "~/auth.server";
 import { $object, $string } from "lizod";
 import { getDb } from "~/db.server";
-import { articles, users } from "~/schema.server";
+import { articles } from "~/schema.server";
 
 export async function action({ request, context }: ActionArgs) {
   const authenticator = getAuthenticator(context);
