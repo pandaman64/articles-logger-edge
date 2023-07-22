@@ -16,7 +16,6 @@ export async function action({ request, context }: ActionArgs) {
       url: $union([$string, $undefined]),
     });
     const body = Object.fromEntries(await request.formData());
-    console.log("received body", body);
     if (validate(body)) {
       const { title, text, url } = body;
       const drizzle = getDb(context);
@@ -30,10 +29,8 @@ export async function action({ request, context }: ActionArgs) {
         })
         .returning({ id: articles.id })
         .get();
-      console.log("inserted article", id);
       return redirect(`/articles/${id}`);
     } else {
-      console.log("invalid body", body);
       throw new Response(null, { status: 400 });
     }
   }
