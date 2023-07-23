@@ -1,7 +1,7 @@
 /// <reference lib="WebWorker" />
 
 import {
-  PrecacheHandler,
+  RemixNavigationHandler,
   matchAssetRequest,
   matchDocumentRequest,
   matchLoaderRequest,
@@ -10,18 +10,13 @@ import {
 import { registerRoute, setDefaultHandler } from "workbox-routing";
 import { CacheFirst, NetworkFirst } from "workbox-strategies";
 
+export type {};
 declare let self: ServiceWorkerGlobalScope;
 
 const PAGES = "page-cache-v1";
 const DATA = "data-cache-v1";
 const ASSETS = "assets-cache-v1";
 const staticAssets = ["/build/", "/icons/"];
-
-const messageHandler = new PrecacheHandler({
-  dataCacheName: DATA,
-  documentCacheName: PAGES,
-  assetCacheName: ASSETS,
-});
 
 // Assets
 registerRoute(
@@ -47,6 +42,11 @@ registerRoute(
     cacheName: PAGES,
   })
 );
+
+const messageHandler = new RemixNavigationHandler({
+  dataCacheName: DATA,
+  documentCacheName: PAGES,
+});
 
 setDefaultHandler(({ request }) => {
   return fetch(request.clone());
