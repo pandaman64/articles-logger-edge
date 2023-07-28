@@ -81,9 +81,26 @@ export async function action({ request, context, params }: ActionArgs) {
   throw new Response(null, { status: 403 });
 }
 
+function renderUrl(maybeUrl: string) {
+  try {
+    new URL(maybeUrl);
+    return (
+      <a
+        href={maybeUrl}
+        className="text-blue-600 underline visited:text-purple-600 hover:text-blue-800"
+      >
+        {maybeUrl}
+      </a>
+    );
+  } catch (e) {
+    return <>{maybeUrl}</>;
+  }
+}
+
 export default function Article() {
   const { article } = useLoaderData<typeof loader>();
   const title = article.title.length > 0 ? article.title : article.content;
+  const content = renderUrl(article.content);
   return (
     <Form
       method="post"
@@ -92,7 +109,7 @@ export default function Article() {
       <header>
         <h1 className="text-xl font-semibold">{title}</h1>
       </header>
-      <p className="text-md leading-6">{article.content}</p>
+      <p className="text-md leading-6">{content}</p>
       <RadioGroup
         className="grid-cols-2"
         orientation="horizontal"
