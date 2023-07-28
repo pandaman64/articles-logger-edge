@@ -2,7 +2,14 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { and, eq } from "drizzle-orm";
-import { $object, $union, $numberString, type Validator } from "lizod";
+import {
+  $object,
+  $union,
+  $numberString,
+  type Validator,
+  $string,
+  $undefined,
+} from "lizod";
 import { getAuthenticator } from "~/auth.server";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
@@ -14,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { Textarea } from "~/components/ui/textarea";
 import { getDb } from "~/db.server";
 import { articles, type Article } from "~/schema.server";
 
@@ -45,19 +53,22 @@ export async function action({ request, context, params }: ActionArgs) {
   if (user) {
     const $empty: Validator<""> = (input: any): input is "" => input === "";
     const validate = $object({
-      already_read: $union([$numberString, $empty]),
+      already_read: $union([$numberString, $empty, $undefined]),
       rating: $union([$numberString, $empty]),
+      comment: $string,
     });
     const body = Object.fromEntries(await request.formData());
+    console.log(body);
     if (validate(body)) {
       const id = Number(params["id"]);
-      const { already_read, rating } = body;
+      const { already_read, rating, comment } = body;
       const drizzle = getDb(context);
       await drizzle
         .update(articles)
         .set({
-          already_read: already_read === "" ? null : Number(body.already_read),
+          already_read: already_read ? Number(body.already_read) : null,
           rating: rating === "" ? null : Number(body.rating),
+          comment,
         })
         .where(eq(articles.id, id))
         .run();
@@ -106,6 +117,7 @@ export default function Article() {
           <SelectValue placeholder="評価する" className="text-md" />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value="" className="hidden" />
           <SelectItem value="1" className="text-md">
             1
           </SelectItem>
@@ -123,6 +135,16 @@ export default function Article() {
           </SelectItem>
         </SelectContent>
       </Select>
+      <Label htmlFor="comment" className="-mb-2 text-lg font-semibold">
+        まとめ・感想
+      </Label>
+      <Textarea
+        id="comment"
+        name="comment"
+        defaultValue={article.comment}
+        className="flex-grow"
+      />
+
       <div className="mt-auto flex h-12 flex-row items-center justify-between">
         <Link
           to="/"

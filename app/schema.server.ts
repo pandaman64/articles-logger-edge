@@ -45,6 +45,7 @@ export const articles = sqliteTable(
     url: text("url").notNull(),
     already_read: integer("already_read"),
     rating: integer("rating"),
+    comment: text("comment").notNull().default(""),
   },
   (table) => ({
     uniqueArticles: uniqueIndex("unique_articles").on(
