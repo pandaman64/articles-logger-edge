@@ -1,4 +1,8 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/cloudflare";
+import type {
+  ActionArgs,
+  LoaderArgs,
+  V2_MetaFunction,
+} from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { and, eq } from "drizzle-orm";
@@ -80,6 +84,16 @@ export async function action({ request, context, params }: ActionArgs) {
 
   throw new Response(null, { status: 403 });
 }
+
+export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
+  if (data) {
+    const { article } = data;
+    const title = article.title.length > 0 ? article.title : article.content;
+    return [{ title: `${title} | 読んだページ記録くん Edge` }];
+  } else {
+    return [];
+  }
+};
 
 function renderUrl(maybeUrl: string) {
   try {
