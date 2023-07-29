@@ -104,7 +104,7 @@ export default function Article() {
   return (
     <Form
       method="post"
-      className="mx-auto flex min-h-screen max-w-lg flex-col gap-4 p-4 leading-none"
+      className="mx-auto flex min-h-screen max-w-lg flex-col gap-4 break-words p-4 leading-none"
     >
       <header>
         <h1 className="text-xl font-semibold">{title}</h1>

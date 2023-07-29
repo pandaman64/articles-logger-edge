@@ -87,7 +87,7 @@ export default function Index() {
       </header>
       <Separator />
       <main className="p-2">
-        <ul className="flex flex-col gap-4">
+        <ul className="flex flex-col gap-4 break-words">
           {userArticles.map((article) => (
             <li key={article.id}>
               <ArticleCard {...article} />
