@@ -14,7 +14,7 @@ export function createSessionStorage(context: AppLoadContext) {
       httpOnly: true,
       secrets: [env.SESSION_COOKIE_SECRET],
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
+      maxAge: 60 * 60 * 24 * 400, // 400 days
     },
     kv: env.SESSIONS,
   });
